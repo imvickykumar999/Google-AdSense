@@ -1,9 +1,15 @@
 
 import requests, random
-from flask import Flask, render_template
+from flask import Flask, render_template, send_from_directory
 from bs4 import BeautifulSoup as bs
 
 app = Flask(__name__)
+
+@app.route('/<filename>')
+def ads(filename):
+    if '.' in filename:
+        filename = 'ads.txt'
+    return send_from_directory("", filename)
 
 def get_news(source):
     if source == 'inshorts':
