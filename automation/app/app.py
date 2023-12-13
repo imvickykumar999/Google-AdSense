@@ -121,7 +121,7 @@ def login():
         ).first()
 
         if login is not None:
-            return redirect(url_for("home", uname=uname))
+            return render_template('home.html', uname=uname, api_key=True)
     return render_template("login.html")
 
 @app.route("/register", methods=["GET", "POST"])
