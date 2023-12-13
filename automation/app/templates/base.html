@@ -10,11 +10,15 @@
     <link rel="shortcut icon" type="image/x-icon" href="static/vix.png" />
 
     <style>
+        .rounded {
+            border-radius:1.0rem!important
+        }
+
         .video-container {
             position: relative;
             padding-bottom: 56.25%;
             height: 0;
-            }
+        }
 
         .video-container iframe {
             position: absolute;
@@ -22,7 +26,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            }
+        }
 
         * {
           box-sizing: border-box;
@@ -84,11 +88,23 @@
   </head>
   <body>
 
+    <script type="text/javascript">
+      var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+      (function(){
+        var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+        s1.async=true;
+        s1.src='https://embed.tawk.to/61255aee649e0a0a5cd2c266/1fdsumdpa';
+        s1.charset='UTF-8';
+        s1.setAttribute('crossorigin','*');
+        s0.parentNode.insertBefore(s1,s0);
+      })();
+    </script>
+
     <center>
-      <div class="jumbotron jumbotron-fluid">
+      <div class="jumbotron jumbotron-fluid rounded">
         <div class="container">
 
-          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <nav class="navbar navbar-expand-lg navbar-light bg-light rounded">
             <a class="navbar-brand" href="{{url_for('news')}}">
               <strong>Random News</strong>
             </a>
@@ -101,20 +117,8 @@
               <ul class="navbar-nav mr-auto">
 
                 <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="https://imvickykumar999.pythonanywhere.com/" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <i>Contact</i>
-                  </a>
-
-                  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a target="_blank" class="dropdown-item" href="https://www.linkedin.com/in/imvickykumar999/">LinkedIn</a>
-                    <div class="dropdown-divider"></div>
-                    <a target="_blank" class="dropdown-item" href="https://github.com/imvickykumar999">GitHub</a>
-                  </div>
-                </li>
-
-                <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="https://inshorts.com/en/read" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    More News
+                    <strong>More News</strong>
                   </a>
 
                   <div class="dropdown-menu" aria-labelledby="navbarDropdown">
@@ -129,20 +133,55 @@
                     <a class="dropdown-item" href="/news/the-wall-street-journal">The Wall Street Journal</a>
                   </div>
                 </li>
+
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="https://imvickykumar999.pythonanywhere.com/" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <strong>Contact</strong>
+                  </a>
+
+                  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a target="_blank" class="dropdown-item" href="https://www.linkedin.com/in/imvickykumar999/">LinkedIn</a>
+                    <div class="dropdown-divider"></div>
+                    <a target="_blank" class="dropdown-item" href="https://github.com/imvickykumar999">GitHub</a>
+                  </div>
+                </li>
+                
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="https://googleadsense.pythonanywhere.com/" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <strong>Daily News</strong>
+                  </a>
+
+                  <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <a target="_blank" class="dropdown-item" href="https://www.instagram.com/vixbot2023/">Instagram</a>
+                    <div class="dropdown-divider"></div>
+                    <a target="_blank" class="dropdown-item" href="https://mastodon.social/@imvickykumar999">Mastodon</a>
+                    <div class="dropdown-divider"></div>
+                    <a target="_blank" class="dropdown-item" href="https://t.me/VixReelsbot">Telegram</a>
+                  </div>
+                </li>
               </ul>
 
               <form class="form-inline my-2 my-lg-0" action="/home">
-                <button style="color:blue;" class="btn btn-outline-primary my-2 my-sm-0" type="submit">
+                <button style="color:black;" class="btn btn-light" type="submit">
                   <h5>
-                    <strong>
-                      Home
-                    </strong>
+                    <strong>Home</strong>
                   </h5>
                 </button>
               </form>
 
             </div>
           </nav>
+          <br><br>
+
+          <iframe style="border-radius:12px" 
+            src="https://open.spotify.com/embed/playlist/37i9dQZF1DWXVJK4aT7pmk?utm_source=generator&theme=0" 
+            width="100%" 
+            height="352" 
+            frameBorder="0" 
+            allowfullscreen="" 
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" 
+            loading="lazy">
+          </iframe>
 
         </div>
       </div>
