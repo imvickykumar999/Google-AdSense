@@ -1,6 +1,7 @@
 
 import requests, random
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import logout_user, LoginManager, UserMixin
 
 from flask import (Flask, 
     render_template, 
@@ -15,11 +16,18 @@ app.app_context().push()
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 db = SQLAlchemy(app)
 
-class user(db.Model):
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+class user(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80))
+    username = db.Column(db.String(80), unique=True)
     email = db.Column(db.String(120))
     password = db.Column(db.String(80))
+
+@login_manager.user_loader
+def load_user(user_id):
+    return user.get(user_id)
 
 def get_news(source, bot_token='982e523813b347c6a6404fd1f9b6e41c'):
     try:
@@ -60,7 +68,7 @@ def one_news(source):
                                 la=la,
                                 len = len(ha))
     except:
-        return render_template('home.html', api_key=False)
+        return render_template('home.html', uname='there', api_key=False)
 
 @app.route('/home', methods=['POST', 'GET'])
 def home():
@@ -78,7 +86,7 @@ def home():
                                     la=la,
                                     len = len(ha))
         else:
-            return render_template('home.html', api_key=True)
+            return render_template('home.html', uname='there', api_key=True)
     except: return render_template('404.html')
 
 @app.route('/')
@@ -95,15 +103,11 @@ def news():
                                 la=la,
                                 len = len(ha))
     except:
-        return render_template('home.html', api_key=False)
+        return render_template('home.html', uname='there', api_key=False)
 
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
-
-@app.route("/welcome/<uname>")
-def welcome(uname):
-    return render_template("welcome.html", uname=uname)
 
 @app.route("/login",methods=["GET", "POST"])
 def login():
@@ -111,28 +115,36 @@ def login():
         uname = request.form["uname"]
         passw = request.form["passw"]
         
-        login = user.query.filter_by(username=uname, password=passw).first()
+        login = user.query.filter_by(
+            username=uname, 
+            password=passw
+        ).first()
+
         if login is not None:
-            return redirect(url_for("welcome", uname=uname))
+            return redirect(url_for("home", uname=uname))
     return render_template("login.html")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    if request.method == "POST":
-        uname = request.form['uname']
-        mail = request.form['mail']
-        passw = request.form['passw']
+    try:
+        if request.method == "POST":
+            uname = request.form['uname']
+            mail = request.form['mail']
+            passw = request.form['passw']
 
-        register = user(username = uname, email = mail, password = passw)
-        db.session.add(register)
-        db.session.commit()
+            register = user(username = uname, email = mail, password = passw)
+            db.session.add(register)
+            db.session.commit()
 
-        return redirect(url_for("login"))
+            return redirect(url_for("login"))
+    except: return render_template("register.html")
     return render_template("register.html")
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return redirect(url_for("login"))
 
 if __name__ == '__main__':
     db.create_all()
-    app.run(
-        # host="0.0.0.0", 
-        debug=True
-    )
+    app.run(debug=True)
