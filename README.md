@@ -1,6 +1,6 @@
 ># `Google AdSense` [***(News Website)***](https://googleadsense.pythonanywhere.com/)
 >
->![image](https://github.com/imvickykumar999/Google-AdSense/assets/50515418/d14d50dc-16c5-4b82-993c-25783b7d2e4a)
+>![image](https://github.com/imvickykumar999/Google-AdSense/assets/50515418/f2976c49-bcd2-4481-af47-3f23cb5526b7)
 >
 >      https://googleadsense.pythonanywhere.com/
 >
