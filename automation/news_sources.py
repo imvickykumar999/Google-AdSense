@@ -3,7 +3,6 @@
 # https://newsapi.org/docs/client-libraries/python
 
 from newsapi import NewsApiClient
-newsapi = NewsApiClient(api_key='39e270768fef4cfe848af36d98107e82')
 
 def news_by_topic():
     topic = input('\nEnter News Topic (say, Diwali) : ')
@@ -24,6 +23,9 @@ def news_by_sources():
     return top_headlines
 
 if __name__ == '__main__':
+    news_api = input('\nEnter news_api Key : ')
+    newsapi = NewsApiClient(api_key = news_api)
+
     top_headlines = news_by_topic()
     # top_headlines = news_by_sources()
 
