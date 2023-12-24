@@ -1,30 +1,37 @@
 
-{% extends "base.html"%}
-{% block content %}
+{% extends 'base.html' %}
+{% block body %}
 
-<center>
-    <div class="jumbotron jumbotron-fluid rounded">
-        <div class="container">
-            <form method="POST">
+  <div class="jumbotron rounded">
+    <div class='row mt-5'>
+      <div class='col-4 mx-auto'>
+        <h4 class='text-center'>User Login</h4><hr>
 
-                <h3 style="color:white;">Username</h3>
-                <input type="text" name="uname" id="uname">
+        <form action="{{url_for('login')}}" method='post'>
+          <div class='form-group'>
+            <label>Email</label>
+            <input type='email' name='email' required class='form-control'>  
+          </div>
 
-                <br><br><br>
-                <h3 style="color:white;">Password</h3>
-                <br>
-                <input type="password" name="passw" id="passw">
+          <div class='form-group'>
+            <label>Password</label>
+            <input type='password' name='upass' required class='form-control'>  
+          </div>
 
-                <br><br><br>
-                <input type="image"
-                    src="/static/submit.png"
-                    width="200"
-                    height="60"
-                    alt="submit"/>
+        <center>
+          <input type='submit' name='submit' value='Submit' class='btn btn-success'>
+        </center>
 
-            </form>
-        </div>
+        </form>
+          
+        <br><br>
+        <label>Create new account ?</label>
+        <br>
+        <a href="/reg">register here</a>
+
+      </div>
     </div>
-</center>
+  </div>
 
+<br><br>
 {% endblock %}

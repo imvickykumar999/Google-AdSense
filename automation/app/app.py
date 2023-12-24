@@ -1,44 +1,28 @@
 
-import requests, random
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import logout_user, LoginManager, UserMixin
-
-from flask import (Flask, 
-    render_template, 
-    redirect, 
-    url_for, 
-    request
+from flask import (Flask,
+    render_template,
+    request, redirect,
+    url_for, flash,
+    session,
 )
 
+from functools import wraps
+import secrets, gspread
+import sqlite3 as sql
+import requests, random
+
 app = Flask(__name__)
-app.app_context().push()
+secret_key = secrets.token_hex(16)
+app.config['SECRET_KEY'] = secret_key
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-db = SQLAlchemy(app)
-
-login_manager = LoginManager()
-login_manager.init_app(app)
-
-class user(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True)
-    email = db.Column(db.String(120))
-    password = db.Column(db.String(80))
-
-@login_manager.user_loader
-def load_user(user_id):
-    return user.get(user_id)
-
-def get_news(source, bot_token='982e523813b347c6a6404fd1f9b6e41c'):
+def get_news(source, api_key='39e270768fef4cfe848af36d98107e82'):
     try:
-        bot_token = '982e523813b347c6a6404fd1f9b6e41c'
-        gets = f'https://newsapi.org/v1/articles?source={source}&sortBy=top&apiKey={bot_token}'
-        
+        gets = f'https://newsapi.org/v1/articles?source={source}&sortBy=top&apiKey={api_key}'
         req = requests.get(gets) 
         box = req.json()['articles']
 
-    except Exception as e:
-        print(e)
+    except:
+        pass
 
     ha,ia,ba,la = [],[],[],[]
 
@@ -57,7 +41,18 @@ def get_news(source, bot_token='982e523813b347c6a6404fd1f9b6e41c'):
 
     return ha, ia, ba, la
 
+def is_logged_in(f):
+	@wraps(f)
+	def wrap(*args,**kwargs):
+		if 'logged_in' in session:
+			return f(*args,**kwargs)
+		else:
+			flash('Unauthorized, Please Login','danger')
+			return redirect(url_for('login'))
+	return wrap
+
 @app.route('/news/<source>')
+@is_logged_in
 def one_news(source):
     try:
         ha, ia, ba, la = get_news(source)
@@ -68,7 +63,7 @@ def one_news(source):
                                 la=la,
                                 len = len(ha))
     except:
-        return render_template('home.html', uname='there', api_key=False)
+        return render_template('home.html', api_key=False)
 
 @app.route('/home', methods=['POST', 'GET'])
 def home():
@@ -86,65 +81,140 @@ def home():
                                     la=la,
                                     len = len(ha))
         else:
-            return render_template('home.html', uname='there', api_key=True)
+            return render_template('home.html', api_key=True)
     except: return render_template('404.html')
 
-@app.route('/')
+@app.route('/', methods=['POST', 'GET'])
 def news():
-    source = ['bbc-news', 'cnn', 'the-verge', 'time', 'the-wall-street-journal']
-    source = random.choice(source)
+    if request.method == 'POST':
+        '''ADD to Fav.'''
 
-    try:
-        ha, ia, ba, la = get_news(source)
-        return render_template('news.html', 
-                                ha=ha, 
-                                ia=ia, 
-                                ba=ba, 
-                                la=la,
-                                len = len(ha))
-    except:
-        return render_template('home.html', uname='there', api_key=False)
+        source = ['bbc-news', 'cnn', 'the-verge', 'time', 'the-wall-street-journal']
+        source = random.choice(source)
+
+        try:
+            ha, ia, ba, la = get_news(source)
+            return render_template('news.html', 
+                                    ha=ha, 
+                                    ia=ia, 
+                                    ba=ba, 
+                                    la=la,
+                                    len = len(ha))
+        except:
+            return render_template('home.html', api_key=False)
+    else:
+        source = ['bbc-news', 'cnn', 'the-verge', 'time', 'the-wall-street-journal']
+        source = random.choice(source)
+
+        try:
+            ha, ia, ba, la = get_news(source)
+            return render_template('news.html', 
+                                    ha=ha, 
+                                    ia=ia, 
+                                    ba=ba, 
+                                    la=la,
+                                    len = len(ha))
+        except:
+            return render_template('home.html', api_key=False)
+
+@app.route('/login',methods=['POST','GET'])
+def login():
+    con=sql.connect("mydb/db_sample.db")
+
+    if request.method=='POST':
+        email=request.form["email"]
+        pwd=request.form["upass"]
+
+        cur=con.cursor()
+        cur.execute("select UNAME from users where EMAIL=? and UPASS=?",(email,pwd))
+        data=cur.fetchone()
+
+        print(data)
+        if data:
+            session['logged_in']=True
+            session['username']=data[0]
+            flash('Login Successfully','success')
+            return redirect('/')
+        else:
+            flash('Invalid Login. Try Again','danger')
+    return render_template("login.html")
+
+def is_logged_in(f):
+	@wraps(f)
+	def wrap(*args,**kwargs):
+		if 'logged_in' in session:
+			return f(*args,**kwargs)
+		else:
+			flash('Unauthorized, Please Login','danger')
+			return redirect(url_for('login'))
+	return wrap
+
+@app.route('/reg',methods=['POST','GET'])
+def reg():
+    status=False
+    con=sql.connect("mydb/db_sample.db")
+
+    if request.method=='POST':
+        name=request.form["uname"]
+        email=request.form["email"]
+        pwd=request.form["upass"]
+        newsletter = request.form.get('newsletter')
+
+        table = name.split('@')[0]
+        con1 = sql.connect('mydb/add2fav.db')
+        cur1 = con1.cursor()
+        cur1.execute(f"DROP TABLE IF EXISTS {table}")
+
+        sql1 = f'''CREATE TABLE "{table}" (
+        "UID"   INTEGER PRIMARY KEY AUTOINCREMENT,
+        "IMG" varchar(50) NOT NULL,
+        "TITLE" varchar(50) NOT NULL,
+        "MORE" varchar(50) NOT NULL,
+        "LINK" varchar(50) NOT NULL
+        );
+        '''
+
+        cur1.execute(sql1)
+        con1.commit()
+        con1.close()
+
+        if newsletter:
+            row_data = [email]
+            spreadsheet_id = '1akZpxtRhFIm97X9ZIdlAm10nfs0_drWTo40rVvkI6zs'
+            worksheet_name = 'Sheet1'
+            unique_col_index = 0 
+
+            gc = gspread.service_account(filename='automation/ideationology-lab-b60654e44e37.json')
+            sh = gc.open_by_key(spreadsheet_id)
+            worksheet = sh.worksheet(worksheet_name)
+
+            existing_data = worksheet.get_all_values()
+            unique_element_exists = any(row_data[unique_col_index] == row[unique_col_index] for row in existing_data)
+
+            if not unique_element_exists:
+                worksheet.append_row(row_data)
+
+        cur=con.cursor()
+        cur.execute("insert into users(UNAME,UPASS,EMAIL) values(?,?,?)",(name,pwd,email))
+        con.commit()
+        cur.close()
+
+        flash('Registration Successfully. Login Here...','success')
+        return redirect('login')
+    return render_template("reg.html",status=status)
+
+@app.route("/logout")
+def logout():
+	session.clear()
+	flash('You are now logged out','success')
+	return redirect(url_for('login'))
 
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
 
-@app.route("/login",methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        uname = request.form["uname"]
-        passw = request.form["passw"]
-        
-        login = user.query.filter_by(
-            username=uname, 
-            password=passw
-        ).first()
-
-        if login is not None:
-            return render_template('home.html', uname=uname, api_key=True)
-    return render_template("login.html")
-
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    try:
-        if request.method == "POST":
-            uname = request.form['uname']
-            mail = request.form['mail']
-            passw = request.form['passw']
-
-            register = user(username = uname, email = mail, password = passw)
-            db.session.add(register)
-            db.session.commit()
-
-            return redirect(url_for("login"))
-    except: return render_template("register.html")
-    return render_template("register.html")
-
-@app.route("/logout")
-def logout():
-    logout_user()
-    return redirect(url_for("login"))
-
 if __name__ == '__main__':
-    db.create_all()
-    app.run(debug=True)
+    app.run(
+        # host="0.0.0.0", 
+        debug=True
+    )
