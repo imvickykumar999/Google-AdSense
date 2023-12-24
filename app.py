@@ -84,10 +84,17 @@ def home():
             return render_template('home.html', api_key=True)
     except: return render_template('404.html')
 
-@app.route('/', methods=['POST', 'GET'])
+@app.route('/')
 def news():
     if request.method == 'POST':
-        '''ADD to Fav.'''
+        # con=sql.connect("mydb/add2fav.db")
+        # cur=con.cursor()
+
+        # user = session['username']
+        # img,title,more,link
+        # cur.execute(f"insert into {user}(IMG,TITLE,MORE,LINK) values(?,?,?,?)",(img,title,more,link))
+        # con.commit()
+        # cur.close()
 
         source = ['bbc-news', 'cnn', 'the-verge', 'time', 'the-wall-street-journal']
         source = random.choice(source)
@@ -101,7 +108,7 @@ def news():
                                     la=la,
                                     len = len(ha))
         except:
-            return render_template('home.html', api_key=False)
+            return render_template('home.html', api_key=False)    
     else:
         source = ['bbc-news', 'cnn', 'the-verge', 'time', 'the-wall-street-journal']
         source = random.choice(source)
